@@ -7,7 +7,7 @@ import json
 import logging
 from datetime import datetime
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
-from playwright_stealth import stealth  # ✅ 方法一：采用最新版兼容导入语法
+from playwright_stealth import stealth_async  # ✅ 方法一：采用最新版兼容导入语法
 
 # 日志配置
 logging.basicConfig(
