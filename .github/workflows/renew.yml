@@ -4,7 +4,7 @@ on:
   schedule:
     # 每 3 天运行一次 (UTC时间 20:00，对应北京时间凌晨 4:00)
     - cron: '0 20 */3 * *'
-  workflow_dispatch:
+  workflow_dispatch: # 保留手动触发按钮，方便随时调试
 
 jobs:
   renew:
@@ -12,25 +12,36 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4  # 升级至 v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5  # 升级至 v5
       with:
         python-version: '3.10'
+        cache: 'pip' # 顺手开启 pip 缓存，显著加快后续构建运行速度
+
     - name: Install dependencies
       run: |
         pip install -r requirements.txt
-        playwright install firefox
-        python -m playwright install-deps firefox
+        # 严格同步替换为 Chromium 内核及其系统底层依赖包
+        playwright install chromium
+        python -m playwright install-deps chromium
+
     - name: Run renewal script
       env:
+        # 基础凭证
         DP_EMAIL: ${{ secrets.DP_EMAIL }}
         DP_PASSWORD: ${{ secrets.DP_PASSWORD }}
+        # 新增：Cookie 会话直连免密令牌 (高优优先级)
+        DP_COOKIES: ${{ secrets.DP_COOKIES }}
+        # 新增：外部干净上游代理网关 (解决 GitHub 数据中心 IP 被拦截的核心通道)
+        PROXY_SERVER: ${{ secrets.PROXY_SERVER }}
+        # 通知配置
         BARK_KEY: ${{ secrets.BARK_KEY }}
         BARK_SERVER: ${{ secrets.BARK_SERVER }}
         TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
         TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+      # 确保这里执行的文件名与你项目仓库里的主 python 文件名一致 (如 main.py 或 renew.py)
       run: python renew.py
       
     - name: Upload screenshots on failure
@@ -39,3 +50,4 @@ jobs:
       with:
         name: error-screenshots
         path: "*.png"
+        retention-days: 7 # 设置排障工件保留时长，避免无意义存储占用
