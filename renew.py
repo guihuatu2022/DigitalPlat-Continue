@@ -7,7 +7,7 @@ import json
 import logging
 from datetime import datetime
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
-from playwright_stealth import stealth_async  # ✅ 方法一：采用最新版兼容导入语法
+from playwright_stealth import stealth_async  # ✅ 正确导入用于异步环境的隐匿协程函数
 
 # 日志配置
 logging.basicConfig(
@@ -233,8 +233,8 @@ async def main():
         browser, context = await setup_browser(p)
         page = await context.new_page()
         
-        # ✅ 方法一核心调用：直接传入 page 实例同步应用全套 Stealth 隐匿特征
-        stealth(page)
+        # ✅ 最终精准修复：添加 await 关键字驱动异步隐匿协程生效
+        await stealth_async(page)
         
         try:
             await login(page, context)
