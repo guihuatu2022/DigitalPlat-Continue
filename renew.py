@@ -7,7 +7,7 @@ import json
 import logging
 from datetime import datetime
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
-from playwright_stealth import stealth_async  # 核心组件：强力隐匿指纹插件
+from playwright_stealth import stealth  # 核心组件：强力隐匿指纹插件
 
 # 日志配置
 logging.basicConfig(
